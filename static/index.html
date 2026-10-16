@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusGo AI</title>
+
+  <style>
+    :root {
+      --navy: #14213d;
+      --blue: #3157d5;
+      --light: #f3f6fc;
+      --text: #1c2740;
+      --border: #e0e6f0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--light);
+      color: var(--text);
+    }
+
+    header {
+      background: var(--navy);
+      color: white;
+      padding: 22px 5%;
+    }
+
+    header h1 { margin: 0 0 6px; }
+    header p { margin: 0; color: #d8e1f4; }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 14px 5%;
+      background: white;
+    }
+
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 11px 15px;
+      background: var(--blue);
+      color: white;
+      cursor: pointer;
+    }
+
+    nav button {
+      background: #e9edfb;
+      color: var(--navy);
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 26px auto;
+      padding: 0 18px;
+    }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .hero {
+      background: linear-gradient(130deg, #172b55, #4266df);
+      color: white;
+      padding: 30px;
+      border-radius: 18px;
+      margin-bottom: 20px;
+    }
+
+    .hero h2 { font-size: 30px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccd4e2;
+      border-radius: 9px;
+      margin: 8px 0 12px;
+      font: inherit;
+    }
+
+    textarea { min-height: 95px; }
+
+    .output {
+      background: #f7f9ff;
+      padding: 14px;
+      border-radius: 9px;
+      margin-top: 14px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      line-height: 1.6;
+    }
+
+    .chat-log {
+      height: 280px;
+      overflow-y: auto;
+      padding: 12px;
+      background: #f7f9ff;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+
+    .bubble {
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 8px 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .user { background: #dfe8ff; margin-left: 12%; }
+    .bot { background: #e7f5ec; margin-right: 12%; }
+
+    .row { display: flex; gap: 8px; align-items: center; }
+    .row input { flex: 1; min-width: 0; }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #667085;
+    }
+
+    @media (max-width: 550px) {
+      .hero h2 { font-size: 24px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>🎓 CampusGo AI</h1>
+    <p>Your Campus. Your World. One App.</p>
+  </header>
+
+  <nav>
+    <button onclick="showSection('home')">Home</button>
+    <button onclick="showSection('study')">AI Study Buddy</button>
+    <button onclick="showSection('career')">Career AI</button>
+    <button onclick="showSection('events')">Events</button>
+    <button onclick="showSection('campus')">Campus GPS</button>
+    <button onclick="showSection('services')">Campus Services</button>
+  </nav>
+
+  <main>
+    <section id="home" class="section active">
+      <div class="hero">
+        <h2>Learn smarter. Grow faster.</h2>
+        <p>Your AI-powered student companion for learning,
+          skills, careers and campus discovery.</p>
+        <button onclick="showSection('study')">Ask AI a question</button>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>📚 AI Study Buddy</h3>
+          <p>Ask questions about Python, HTML, science and more.</p>
+          <button onclick="showSection('study')">Open Study Buddy</button>
+        </div>
+
+        <div class="card">
+          <h3>🚀 Career Roadmap</h3>
+          <p>Explore skills and projects to build.</p>
+          <button onclick="showSection('career')">Explore Careers</button>
+        </div>
+
+        <div class="card">
+          <h3>🏆 Events & Hackathons</h3>
+          <p>Explore sample student activities.</p>
+          <button onclick="showSection('events')">View Events</button>
+        </div>
+
+        <div class="card">
+          <h3>📍 Campus GPS</h3>
+          <p>Check your location if you grant permission.</p>
+          <button onclick="showSection('campus')">Open GPS</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Local AI Status</h3>
+        <button onclick="checkHealth()">Check Connection</button>
+        <div id="health" class="output">Not checked yet.</div>
+      </div>
+    </section>
+
+    <section id="study" class="section">
+      <div class="card">
+        <h2>📚 AI Study Buddy</h2>
+        <p>Ask a study question and receive a local AI response.</p>
+
+        <div id="chatLog" class="chat-log">
+          <div class="bubble bot">
+            Hi! I'm CampusGo AI. What would you like to learn?
+          </div>
+        </div>
+
+        <form id="chatForm">
+          <label for="question">Your question</label>
+          <div class="row">
+            <input id="question"
+              placeholder="Explain Python loops simply..." required>
+            <button type="submit">Send</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="career" class="section">
+      <div class="card">
+        <h2>🚀 AI Career Roadmap</h2>
+
+        <label for="skills">Your skills (comma separated)</label>
+        <input id="skills" placeholder="Python, HTML, communication">
+
+        <label for="interests">Your interests</label>
+        <textarea id="interests"
+          placeholder="AI, web development, cybersecurity..."></textarea>
+
+        <button onclick="generateCareer()">Generate Roadmap</button>
+        <div id="careerOutput" class="output">
+          Your roadmap will appear here.
+        </div>
+      </div>
+    </section>
+
+    <section id="events" class="section">
+      <div class="card">
+        <h2>🏆 Student Events</h2>
+        <p>Sample data only, not verified live events.</p>
+        <button onclick="loadEvents()">Load Events</button>
+        <div id="eventsOutput"></div>
+      </div>
+    </section>
+
+    <section id="campus" class="section">
+      <div class="card">
+        <h2>📍 Campus GPS</h2>
+        <p>Location access is optional. This prototype displays
+          coordinates only and does not provide directions.</p>
+        <button onclick="getLocation()">Use My Location</button>
+        <div id="locationOutput" class="output">
+          Location not requested.
+        </div>
+      </div>
+    </section>
+
+    <section id="services" class="section">
+      <div class="grid">
+        <div class="card">
+          <h2>🍽️ Food Menu</h2>
+          <p>Sample menu only; no real orders or payments.</p>
+          <button onclick="loadFood()">Show Menu</button>
+          <div id="foodOutput"></div>
+        </div>
+
+        <div class="card">
+          <h2>🚗 Campus Rides</h2>
+          <p>Demo only; no driver is contacted.</p>
+          <button onclick="checkRide()">Try Demo</button>
+          <div id="rideOutput" class="output"></div>
+        </div>
+
+        <div class="card">
+          <h2>🛡️ Student Safety</h2>
+          <p>Use official campus safety contacts in an emergency.
+            This prototype does not contact emergency services.</p>
+          <p>Never share passwords or private information.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    CampusGo AI · Student prototype · Verify information before acting
+  </footer>
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active');
+      });
+      document.getElementById(id).classList.add('active');
+    }
+
+    async function api(url, options = {}) {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(options.headers || {})
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Server returned ' + response.status);
+      }
+
+      return response.json();
+    }
+
+    function addMessage(text, type) {
+      const log = document.getElementById('chatLog');
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble ' + type;
+      bubble.textContent = text;
+      log.appendChild(bubble);
+      log.scrollTop = log.scrollHeight;
+      return bubble;
+    }
+
+    document.getElementById('chatForm').addEventListener(
+      'submit', async event => {
+        event.preventDefault();
+
+        const input = document.getElementById('question');
+        const message = input.value.trim();
+        if (!message) return;
+
+        addMessage(message, 'user');
+        input.value = '';
+
+        const waiting = addMessage('Thinking... Please wait.', 'bot');
+
+        try {
+          const data = await api('/api/chat', {
+            method: 'POST',
+            body: JSON.stringify({ message })
+          });
+          waiting.textContent = data.reply;
+        } catch (error) {
+          waiting.textContent =
+            'Could not reach the backend. Check the server.';
+        }
+      }
+    );
+
+    async function checkHealth() {
+      const output = document.getElementById('health');
+      output.textContent = 'Checking...';
+
+      try {
+        const data = await api('/api/health');
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        output.textContent = 'Backend not reachable. Start the server.';
+      }
+    }
+
+    async function generateCareer() {
+      const output = document.getElementById('careerOutput');
+      output.textContent = 'Creating your roadmap...';
+
+      const skills = document.getElementById('skills').value
+        .split(',').map(s => s.trim()).filter(Boolean);
+      const interests = document.getElementById('interests').value;
+
+      try {
+        const data = await api('/api/career', {
+          method: 'POST',
+          body: JSON.stringify({ skills, interests })
+        });
+        output.textContent = data.roadmap;
+      } catch (error) {
+        output.textContent = 'Could not connect to the backend.';
+      }
+    }
+
+    async function loadEvents() {
+      const output = document.getElementById('eventsOutput');
+      output.textContent = 'Loading...';
+
+      try {
+        const data = await api('/api/events');
+        output.replaceChildren();
+
+        data.events.forEach(event => {
+          const card = document.createElement('div');
+          card.className = 'card';
+
+          const title = document.createElement('h3');
+          title.textContent = event.title;
+
+          const details = document.createElement('p');
+          details.textContent = event.category + ' · ' + event.details;
+
+          card.append(title, details);
+          output.appendChild(card);
+        });
+      } catch (error) {
+        output.textContent = 'Could not load events.';
+      }
+    }
+
+    async function loadFood() {
+      const output = document.getElementById('foodOutput');
+      output.textContent = 'Loading...';
+
+      try {
+        const data = await api('/api/food');
+        output.replaceChildren();
+
+        data.items.forEach(item => {
+          const p = document.createElement('p');
+          p.textContent = item.name + ' — ₹' + item.price;
+          output.appendChild(p);
+        });
+      } catch (error) {
+        output.textContent = 'Could not load the menu.';
+      }
+    }
+
+    async function checkRide() {
+      const output = document.getElementById('rideOutput');
+
+      try {
+        const data = await api('/api/rides', {
+          method: 'POST',
+          body: '{}'
+        });
+        output.textContent = data.message;
+      } catch (error) {
+        output.textContent = 'Could not reach the backend.';
+      }
+    }
+
+    function getLocation() {
+      const output = document.getElementById('locationOutput');
+
+      if (!navigator.geolocation) {
+        output.textContent = 'Geolocation is not supported.';
+        return;
+      }
+
+      output.textContent = 'Waiting for your permission...';
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          output.textContent =
+            'Latitude: ' + position.coords.latitude +
+            '\nLongitude: ' + position.coords.longitude +
+            '\nCoordinates only; no map is implemented yet.';
+        },
+        () => {
+          output.textContent = 'Location unavailable or permission denied.';
+        }
+      );
+    }
+  </script>
+</body>
+</html>
